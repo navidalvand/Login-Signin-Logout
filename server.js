@@ -78,4 +78,3 @@ class Server {
 }
 
 new Server();
-console.log("hello from entrypoint");

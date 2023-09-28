@@ -1,15 +1,17 @@
+const chalk = require("chalk");
 const { ResponseHandler } = require("../utils/responseHandlers");
 
 class AuthController {
-  login(req, res, next) {
+  signup(req, res, next) {
     try {
+      console.log(chalk.bgWhite.black("here is the sign-up controller"));
     } catch (err) {
       next(err);
     }
   }
   signin(req, res, next) {
     try {
-      next(ResponseHandler.send({ message: "test fucking message" , }));
+      next(ResponseHandler.send({ message: "test fucking message" }));
     } catch (err) {
       next(err);
     }
