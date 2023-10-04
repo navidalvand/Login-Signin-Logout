@@ -15,6 +15,11 @@ router.post(
   AuthController.signin
 );
 
+router.get(
+  "/sign-out",
+  AuthController.signout
+);
+
 module.exports = {
   mainRoutes: router,
 };

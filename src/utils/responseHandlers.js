@@ -14,7 +14,7 @@ class ResponseHandler {
       data: data || null,
     };
   }
-  unUthorized({ statusCode, message, data }) {
+  unAuthorized({ statusCode, message, data }) {
     return {
       statusCode: statusCode || 401,
       message: message || "UnAuthorized",

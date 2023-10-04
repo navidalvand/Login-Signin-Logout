@@ -127,9 +127,37 @@ class AuthController {
   }
   async signout(req, res, next) {
     try {
-      
+      const token = AuthService.cookies.getCookie(req, "token");
+      if (!token)
+        throw ResponseHandler.badRequest({
+          message: "you dont have any account to logout you idiot",
+        });
+      const decodeToken = await AuthService.jwt.verifyToken(token);
+
+      if (decodeToken.name === "TokenExpiredError")
+        throw ResponseHandler.unAuthorized({
+          message: "token expired",
+          data: decodeToken,
+        });
+
+      const user = await AuthService.mongo.findById(
+        Models.Users,
+        decodeToken.userId
+      );
+
+      console.log(user);
+
+      AuthService.cookies.clearCookie(res, "token");
+      const deleteCash = await AuthService.redis.deleteKey(`token:${user._id}`);
+
+      if (!deleteCash)
+        throw ResponseHandler.internalServerError({
+          message: "cannot find the token in cash memory",
+        });
+
+      next(ResponseHandler.ok({ message: "you logged out" }));
     } catch (err) {
-      next(err)
+      next(err);
     }
   }
 }

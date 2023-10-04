@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const redisClient = require("../utils/init-redis");
+const { UserModel } = require("../models/user.model");
 require("dotenv").config();
 
 class AuthService {
@@ -14,7 +15,9 @@ class AuthService {
     async checkField(model, condition) {
       return !!(await model.findOne(condition));
     },
-    async findMany() {},
+    async findById(model, id) {
+      return await model.findById(id);
+    },
   };
 
   hash = {
@@ -35,6 +38,15 @@ class AuthService {
         expiresIn: "24h",
       });
     },
+
+    verifyToken: async (token) => {
+      try {
+        const result = await jwt.verify(token, process.env.TOKEN_PRIVATE_KEY);
+        return result;
+      } catch (err) {
+        return err;
+      }
+    },
   };
 
   cookies = {
@@ -47,7 +59,9 @@ class AuthService {
     getCookie: (req, cookieName) => {
       return req?.cookies[cookieName];
     },
-    clearCookie: (key) => {},
+    clearCookie: (res, cookie) => {
+      res.clearCookie(cookie);
+    },
   };
 
   redis = {
@@ -58,6 +72,11 @@ class AuthService {
     getKey: async (key) => {
       const getCash = await redisClient.get(key);
       return getCash;
+    },
+    deleteKey: async (key) => {
+      const result = await redisClient.del(key);
+      console.log(result);
+      return result;
     },
   };
 }
