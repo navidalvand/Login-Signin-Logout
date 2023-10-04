@@ -29,6 +29,14 @@ class ResponseHandler {
       data: data || null,
     };
   }
+
+  internalServerError({ statusCode, message, data }) {
+    return {
+      statusCode: statusCode || 500,
+      message: message || "internal server error",
+      data: data || null,
+    };
+  }
 }
 
 module.exports = {

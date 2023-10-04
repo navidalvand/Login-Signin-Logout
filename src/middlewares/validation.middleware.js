@@ -39,6 +39,9 @@ class ValidatorMiddleware {
       next(err);
     }
   }
+
+
+  
   signinDataValidator(req, res, next) {
     try {
       next();

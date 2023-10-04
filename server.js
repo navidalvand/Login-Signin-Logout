@@ -12,10 +12,12 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const { allDocPathes } = require("./src/documentation/swagger.pathes");
 const { swaggerConfig } = require("./src/documentation/swagger.config");
 
+
 class Server {
   constructor() {
     this.configServer();
     this.connectToDataBase();
+    this.initRedis();
     this.configSwagger();
     this.createRoutes();
     this.errorHandler();
@@ -67,6 +69,10 @@ class Server {
         data: null,
       });
     });
+  }
+
+  initRedis() {
+    require('./src/utils/init-redis');
   }
 
   startServer() {
