@@ -11,6 +11,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerJSDoc = require("swagger-jsdoc");
 const { allDocPathes } = require("./src/documentation/swagger.pathes");
 const { swaggerConfig } = require("./src/documentation/swagger.config");
+const cookieParser = require("cookie-parser");
 
 
 class Server {
@@ -29,6 +30,7 @@ class Server {
     app.use(bodyParser.json());
     app.use(helmet());
     app.use(morgan("dev"));
+    app.use(cookieParser());
   }
 
   connectToDataBase() {

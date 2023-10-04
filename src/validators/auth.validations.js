@@ -11,6 +11,10 @@ class AuthValidator {
     age: Joi.number().integer().min(1).max(101),
     password: Joi.string().trim().min(8).max(24).required(),
   });
+  signin = Joi.object({
+    username: Joi.string().trim().min(4).max(24).required(),
+    password: Joi.string().trim().min(8).max(24).required(),
+  });
 }
 
 module.exports = {

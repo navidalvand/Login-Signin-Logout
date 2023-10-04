@@ -17,18 +17,25 @@ class AuthService {
     async findMany() {},
   };
 
-  hashPassword(password) {
-    const saltRounds = 10;
-    const salt = bcrypt.genSaltSync(saltRounds);
-    const hash = bcrypt.hashSync(password, salt);
-    return hash;
-  }
+  hash = {
+    createHash: (string) => {
+      const saltRounds = 10;
+      const salt = bcrypt.genSaltSync(saltRounds);
+      const hash = bcrypt.hashSync(string, salt);
+      return hash;
+    },
+    compareHash: (string, hash) => {
+      return bcrypt.compareSync(string, hash);
+    },
+  };
 
-  signToken(payload) {
-    return jwt.sign(payload, process.env.TOKEN_PRIVATE_KEY, {
-      expiresIn: "24h",
-    });
-  }
+  jwt = {
+    signToken: (payload) => {
+      return jwt.sign(payload, process.env.TOKEN_PRIVATE_KEY, {
+        expiresIn: "24h",
+      });
+    },
+  };
 
   cookies = {
     setCookie: (res, { cookieName, value, expiresIn }) => {
@@ -37,7 +44,9 @@ class AuthService {
         httpOnly: true,
       });
     },
-    getCookie: (key) => {},
+    getCookie: (req, cookieName) => {
+      return req?.cookies[cookieName];
+    },
     clearCookie: (key) => {},
   };
 

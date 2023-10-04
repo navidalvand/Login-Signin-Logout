@@ -2,7 +2,7 @@ const { ResponseHandler } = require("../utils/responseHandlers");
 const { AuthValidator } = require("../validators/auth.validations");
 
 class ValidatorMiddleware {
-  async signupDataValidator(req, res, next) {
+  signupDataValidator(req, res, next) {
     try {
       const {
         username,
@@ -19,7 +19,7 @@ class ValidatorMiddleware {
           statusCode: 400,
           message: "password and confirm_password are not the same",
         });
-      const validationResult = await AuthValidator.signup.validate({
+      const validationResult = AuthValidator.signup.validate({
         username,
         email,
         phone,
@@ -40,10 +40,20 @@ class ValidatorMiddleware {
     }
   }
 
-
-  
   signinDataValidator(req, res, next) {
     try {
+      const { username, password } = req.body;
+
+      const validationResult = AuthValidator.signin.validate({
+        username,
+        password,
+      });
+      if (validationResult.error)
+        throw ResponseHandler.badRequest({
+          statusCode: 400,
+          message: validationResult.error.message,
+          data: validationResult.error,
+        });
       next();
     } catch (err) {
       next(err);

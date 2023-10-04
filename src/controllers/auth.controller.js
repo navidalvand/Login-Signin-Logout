@@ -1,6 +1,8 @@
 const { ResponseHandler } = require("../utils/responseHandlers");
 const { AuthService } = require("../service/auth.service");
 const { Models } = require("../utils/get-models");
+const aDayInSeconds = 86400;
+const aDayInMiliSeconds = aDayInSeconds * 1000;
 
 class AuthController {
   async signup(req, res, next) {
@@ -27,7 +29,7 @@ class AuthController {
           data: result,
         });
 
-      const hashedPassword = AuthService.hashPassword(password);
+      const hashedPassword = AuthService.hash.createHash(password);
 
       const createUser = await AuthService.mongo.createOne(Models.Users, {
         username,
@@ -38,15 +40,13 @@ class AuthController {
         age,
         password: hashedPassword,
       });
-      const token = AuthService.signToken({ userId: createUser._id });
+      const token = AuthService.jwt.signToken({ userId: createUser._id });
 
       if (!createUser)
         throw ResponseHandler.internalServerError({
           message: "user did not save",
           data: createUser,
         });
-      const aDayInSeconds = 86400;
-      const aDayInMiliSeconds = aDayInSeconds * 1000;
 
       AuthService.cookies.setCookie(res, {
         cookieName: "token",
@@ -78,9 +78,58 @@ class AuthController {
   }
   async signin(req, res, next) {
     try {
-      next(ResponseHandler.send({ message: "test fucking message" }));
+      const token = AuthService.cookies.getCookie(req, "token");
+      if (token)
+        throw ResponseHandler.badRequest({
+          message: "you'are already loged in",
+        });
+      const { username, password } = req.body;
+      const user = await AuthService.mongo.findOne(Models.Users, { username });
+      if (!user)
+        throw ResponseHandler.badRequest({
+          message: "username or password is wrong",
+        });
+
+      const comparePassword = AuthService.hash.compareHash(
+        password,
+        user.password
+      );
+
+      if (!comparePassword)
+        throw ResponseHandler.badRequest({
+          message: "username or password is wrong",
+        });
+
+      const createToken = AuthService.jwt.signToken({ userId: user._id });
+
+      AuthService.cookies.setCookie(res, {
+        cookieName: "token",
+        value: createToken,
+        expiresIn: aDayInMiliSeconds,
+      });
+
+      const cashedToken = await AuthService.redis.setKey({
+        key: `token:${user._id}`,
+        value: createToken,
+        expiresIn: aDayInSeconds,
+      });
+
+      if (!cashedToken)
+        throw ResponseHandler.internalServerError({
+          message: "cannot save the token in redis",
+          data: cashedToken,
+        });
+
+      next(ResponseHandler.ok({ message: "you logged in", data: user }));
     } catch (err) {
       next(err);
+    }
+  }
+  async signout(req, res, next) {
+    try {
+      
+    } catch (err) {
+      next(err)
     }
   }
 }
