@@ -7,10 +7,6 @@ const morgan = require("morgan");
 const mongoose = require("mongoose");
 const { mainRoutes } = require("./src/routes/auth.router");
 const { responseMiddleware } = require("./src/middlewares/response.middleware");
-const swaggerUi = require("swagger-ui-express");
-const swaggerJSDoc = require("swagger-jsdoc");
-const { allDocPathes } = require("./src/documentation/swagger.pathes");
-const { swaggerConfig } = require("./src/documentation/swagger.config");
 const cookieParser = require("cookie-parser");
 
 
@@ -19,7 +15,6 @@ class Server {
     this.configServer();
     this.connectToDataBase();
     this.initRedis();
-    this.configSwagger();
     this.createRoutes();
     this.errorHandler();
     this.startServer();
@@ -42,19 +37,6 @@ class Server {
       .catch((err) => {
         console.log(err);
       });
-  }
-
-  configSwagger() {
-    app.use(
-      "/api-doc",
-      swaggerUi.serve,
-      swaggerUi.setup(
-        swaggerJSDoc({
-          swaggerDefinition: swaggerConfig,
-          apis: allDocPathes,
-        })
-      )
-    );
   }
 
   createRoutes() {
